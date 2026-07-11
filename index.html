@@ -240,7 +240,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:14p
 <div id="section-plan" class="section">
 <div class="page-title">三階段讀書計畫</div>
 <div class="page-sub">從現在到 2027 年 2 月，分三個階段推進。</div>
-<div class="notice">⚑ 7 月中下旬起回台灣上班（早班），每天讀書時間降至 1–1.5 小時，週末補強。模式切換請至「每日課表」調整。</div>
+<div class="notice">⚑ 目前：課本已到，全科從頭重來！全天可讀模式每天約 7 小時。上班日期確定後，至「每日課表」切換為上班中模式（每天約 3 小時）。</div>
 <div class="phase-grid" id="phase-grid"></div>
 <div class="card">
 <div class="card-title">各校考試科目對照</div>
@@ -318,29 +318,25 @@ working:{
 };
 
 const PHASE_DATA=[
-{num:'PHASE 01',name:'建立基礎',date:'2026 年 5 月 — 8 月',badge:'第一階段',badgeColor:'#dcfce7',badgeText:'#14532d',
-items:['每天 2 小時：影片＋教材同步進行','5 月清掉統計學、社工管理兩科','6 月完成直接服務全部堂數','7 月完成研究法＋人類行為','7 月中下旬起回台灣上班，降為每天 1–1.5 小時','8 月推進社福政策前半、概要持續進行']},
-{num:'PHASE 02',name:'強化整合',date:'2026 年 9 月 — 11 月',badge:'第二階段',badgeColor:'#dbeafe',badgeText:'#1e40af',
-items:['9 月完成社福政策、概要全部堂數','開始刷歷屆試題，每週 1 份','整理四校高頻考點筆記','補看待釋出的總複習課程','11 月針對弱點重看對應影片']},
+{num:'PHASE 01',name:'建立基礎',date:'2026 年 7 月 — 9 月',badge:'第一階段',badgeColor:'#dcfce7',badgeText:'#14532d',
+items:['七科全部從頭重來，影片＋課本並行','全天可讀模式：每天約 7 小時，每天 3 科輪替','社福政策＋概要每天各 2 堂，其餘科目每天 1 堂輪替','上班後切換為上班中模式（每天約 3 小時）','目標：9 月底前完成所有科目第一輪']},
+{num:'PHASE 02',name:'強化整合',date:'2026 年 10 月 — 11 月',badge:'第二階段',badgeColor:'#dbeafe',badgeText:'#1e40af',
+items:['開始刷歷屆試題，每週 1 份','整理四校高頻考點筆記','補看待釋出的總複習課程','11 月針對弱點重看對應影片','各科一頁架構筆記整理完成']},
 {num:'PHASE 03',name:'衝刺複習',date:'2026 年 12 月 — 2027 年 2 月',badge:'第三階段',badgeColor:'#fee2e2',badgeText:'#991b1b',
 items:['每週安排一次模擬考（限時完整試卷）','每天睡前 15 分鐘快速翻閱筆記','1 月刷各校近 3 年試題','集中補強統計、研究法弱點','考前一週輕量複習，勿熬夜']},
 ];
 
 const MONTHLY_PLAN={
-'2026-5':{phase:'第一階段',phaseColor:'#dcfce7',phaseText:'#14532d',note:'人在國外，每天 2 小時，趁自由時間多衝一點',
-rows:[{subj:'stat',target:'12 堂（全部）',status:'done',statusText:'✓ 5月底完課'},{subj:'mgmt',target:'13 堂（全部）',status:'done',statusText:'✓ 5月底完課'},{subj:'overview',target:'約 10 堂（第 1–10）',status:'ongoing',statusText:'持續進行 →'}]},
-'2026-6':{phase:'第一階段',phaseColor:'#dcfce7',phaseText:'#14532d',note:'月底 6/30 搭飛機回台灣，最後幾天調整節奏',
-rows:[{subj:'direct',target:'24 堂（全部）',status:'done',statusText:'✓ 6月底完課'},{subj:'overview',target:'約 10 堂（第 11–20）',status:'ongoing',statusText:'持續進行 →'}]},
-'2026-7':{phase:'第一階段',phaseColor:'#dcfce7',phaseText:'#14532d',note:'7月中下旬起開始上班（早班），每天降為 1–1.5 小時，週末補強',
-rows:[{subj:'research',target:'25 堂（全部）',status:'done',statusText:'✓ 7月底完課'},{subj:'human',target:'16 堂（全部）',status:'done',statusText:'✓ 7月底完課'},{subj:'overview',target:'約 10 堂（第 21–30）',status:'ongoing',statusText:'持續進行 →'}]},
-'2026-8':{phase:'第一階段',phaseColor:'#dcfce7',phaseText:'#14532d',note:'社福政策開始推進，概要接近收尾',
-rows:[{subj:'policy',target:'約 21 堂（第 1–21）',status:'ongoing',statusText:'進行中 →'},{subj:'overview',target:'約 6 堂（第 31–36）',status:'ongoing',statusText:'持續進行 →'}]},
-'2026-9':{phase:'第二階段',phaseColor:'#dbeafe',phaseText:'#1e40af',note:'課程＋刷題各半，開始做歷屆試題',
-rows:[{subj:'policy',target:'約 21 堂（第 22–42）',status:'done',statusText:'✓ 9月底完課'},{subj:'overview',target:'6 堂（第 37–42，含總複習）',status:'done',statusText:'✓ 9月底完課'},{subj:null,target:'歷屆試題（臺大、北大）',status:'special',statusText:'每週 1 份'}]},
+'2026-7':{phase:'第一階段',phaseColor:'#dcfce7',phaseText:'#14532d',note:'課本到手，全科重新出發！影片＋課本並行，每天 3 科輪替',
+rows:[{subj:'policy',target:'社福政策 第 1–20 堂',status:'ongoing',statusText:'進行中 →'},{subj:'overview',target:'概要 第 1–20 堂',status:'ongoing',statusText:'進行中 →'},{subj:'stat',target:'統計學 第 1–6 堂',status:'ongoing',statusText:'進行中 →'},{subj:'direct',target:'直接服務 第 1–6 堂',status:'ongoing',statusText:'進行中 →'}]},
+'2026-8':{phase:'第一階段',phaseColor:'#dcfce7',phaseText:'#14532d',note:'上班後切換上班中模式（每天 3hr），週末補強',
+rows:[{subj:'policy',target:'社福政策 第 21–42 堂',status:'ongoing',statusText:'進行中 →'},{subj:'overview',target:'概要 第 21–42 堂',status:'ongoing',statusText:'進行中 →'},{subj:'research',target:'研究法 第 1–16 堂',status:'ongoing',statusText:'進行中 →'},{subj:'human',target:'人類行為 第 1–10 堂',status:'ongoing',statusText:'進行中 →'}]},
+'2026-9':{phase:'第一階段',phaseColor:'#dcfce7',phaseText:'#14532d',note:'目標：本月底完成所有科目第一輪',
+rows:[{subj:'direct',target:'直接服務 第 7–24 堂',status:'ongoing',statusText:'進行中 →'},{subj:'research',target:'研究法 第 17–25 堂',status:'ongoing',statusText:'進行中 →'},{subj:'human',target:'人類行為 第 11–16 堂',status:'ongoing',statusText:'進行中 →'},{subj:'mgmt',target:'管理 第 1–13 堂（全部）',status:'ongoing',statusText:'進行中 →'},{subj:'stat',target:'統計學 第 7–12 堂（全部）',status:'ongoing',statusText:'進行中 →'}]},
 '2026-10':{phase:'第二階段',phaseColor:'#dbeafe',phaseText:'#1e40af',note:'刷題為主，整理高頻考點筆記',
-rows:[{subj:null,target:'歷屆試題（政大、師大）',status:'special',statusText:'每週 1 份'},{subj:null,target:'高頻考點筆記整理',status:'special',statusText:'本月完成'},{subj:null,target:'待釋出總複習補看',status:'special',statusText:'釋出後補看'}]},
+rows:[{subj:null,target:'歷屆試題（臺大、北大）',status:'special',statusText:'每週 1 份'},{subj:null,target:'高頻考點筆記整理',status:'special',statusText:'本月完成'},{subj:null,target:'待釋出總複習補看',status:'special',statusText:'釋出後補看'}]},
 '2026-11':{phase:'第二階段',phaseColor:'#dbeafe',phaseText:'#1e40af',note:'弱點補強，整理全科架構筆記',
-rows:[{subj:null,target:'弱點章節重看',status:'special',statusText:'依做題結果'},{subj:null,target:'各科一頁架構筆記',status:'special',statusText:'本月完成'}]},
+rows:[{subj:null,target:'歷屆試題（政大、師大）',status:'special',statusText:'每週 1 份'},{subj:null,target:'弱點章節重看',status:'special',statusText:'依做題結果'},{subj:null,target:'各科一頁架構筆記',status:'special',statusText:'本月完成'}]},
 '2026-12':{phase:'第三階段',phaseColor:'#fee2e2',phaseText:'#991b1b',note:'模擬考節奏，每週一次限時試卷',
 rows:[{subj:null,target:'模擬考（輪流各校）',status:'special',statusText:'共 4 份'},{subj:null,target:'筆記快速瀏覽',status:'special',statusText:'每日睡前 15 分'}]},
 '2027-1':{phase:'第三階段',phaseColor:'#fee2e2',phaseText:'#991b1b',note:'各校近 3 年試題，集中補強盲點',
