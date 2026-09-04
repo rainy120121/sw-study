@@ -240,7 +240,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:14p
 <div id="section-plan" class="section">
 <div class="page-title">三階段讀書計畫</div>
 <div class="page-sub">從現在到 2027 年 2 月，分三個階段推進。</div>
-<div class="notice">⚑ 目前：課本已到，7月暖身中。8/1–8/7 緩衝週，8/8 正式進入 Phase 1。平日 3hr、假日 6.5hr，每週約 28 小時。課表依日期自動切換，無需手動調整。</div>
+<div class="notice">⚑ 9/4–9/7 自由讀書，9/8 正式進入 Phase 1。課表依日期自動切換：Phase 1（9/8–10/31）→ Phase 2（11/1–12/31）→ Phase 3（1/1–1/31）。週二、三偶有回診，當天任務可彈性調整。</div>
 <div class="phase-grid" id="phase-grid"></div>
 <div class="card">
 <div class="card-title">各校考試科目對照</div>
@@ -275,125 +275,114 @@ const EXAM_DATE=new Date('2027-02-01');
 const DAYS=['一','二','三','四','五','六','日'];
 const MONTHS=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 
-// Phase 判斷：依日期自動切換（8/8前＝fullday過渡期，8/8起正式Phase1，10/1起Phase2，12/1起Phase3）
+// Phase 判斷：依日期自動切換
 function getCurrentPhaseByDate(){
 const now=new Date();
 const y=now.getFullYear();
 const m=now.getMonth()+1;
 const d=now.getDate();
-if(y===2026&&m<=7) return 'fullday';
-if(y===2026&&m===8&&d<=7) return 'fullday'; // 緩衝週
-if((y===2026&&m>=8)||(y===2026&&m===9)) return 'phase1';
-if(y===2026&&(m===10||m===11)) return 'phase2';
-if((y===2026&&m===12)||(y===2027&&m===1)) return 'phase3';
+// 9/4–9/7 準備期，不排固定任務（回傳 'prep'）
+if(y===2026&&m===9&&d<=7) return 'prep';
+// Phase 1：9/8–10/31
+if(y===2026&&(m===9||m===10)) return 'phase1';
+// Phase 2：11/1–12/31
+if(y===2026&&(m===11||m===12)) return 'phase2';
+// Phase 3：1/1–1/31
+if(y===2027&&m===1) return 'phase3';
+// 考前
 return 'phase3';
 }
 
 const DAILY_LESSON_COUNT={
-fullday:{
-1:{policy:2,overview:2,stat:1},
-2:{policy:2,overview:2,direct:1},
-3:{policy:2,overview:2,research:1},
-4:{policy:2,overview:2,human:1},
-5:{policy:2,overview:2,mgmt:1},
-6:{policy:2,overview:2,stat:1,direct:1},
-0:{policy:2,overview:2,research:1,human:1},
+// 準備期（9/4–9/7）：不排固定任務
+prep:{
+1:{},2:{},3:{},4:{},5:{},6:{},0:{},
 },
-// Phase 1：平日 3hr（2堂），假日 6.5hr（4–5堂）
+// Phase 1（9/8–10/31）：平日每天1科，週六2科，週日2科
 phase1:{
-1:{overview:2,research:2},   // 一：概要＋研究法
-2:{policy:2,stat:2},         // 二：政策＋統計
-3:{direct:2,human:2},        // 三：直服＋人類
-4:{overview:2,research:2},   // 四：概要＋研究法
-5:{policy:2,mgmt:2},         // 五：政策＋管理
-6:{direct:2,stat:2,human:2}, // 六：直服＋統計＋人類
-0:{overview:3,policy:2,mgmt:2}, // 日：概要＋政策＋管理
+1:{mgmt:2},         // 一：管理 2 堂（2節）
+2:{research:2},     // 二：研究法 1節（通常2堂，特殊節3堂）
+3:{policy:2},       // 三：社福政策 1節
+4:{overview:2},     // 四：概要 1節
+5:{direct:2},       // 五：直接服務 1節
+6:{human:2,stat:2}, // 六：人類行為1節＋統計1節
+0:{policy:2,overview:2}, // 日：社福政策1節＋概要1節
 },
-// Phase 2：平日 3hr（2堂），假日 6.5hr（4–5堂）
+// Phase 2（11/1–12/31）：同課表，進入第二輪複習
 phase2:{
-1:{overview:2,research:2},      // 一：概要＋研究法
-2:{policy:2,stat:2},            // 二：政策＋統計
-3:{direct:2,mgmt:2},            // 三：直服＋管理
-4:{overview:2,research:2},      // 四：概要＋研究法
-5:{policy:2,direct:2},          // 五：政策＋直服
-6:{overview:3,stat:2,direct:2}, // 六：概要＋統計＋直服
-0:{policy:3,research:2,mgmt:2}, // 日：政策＋研究法＋管理
+1:{mgmt:2},
+2:{research:2},
+3:{policy:2},
+4:{overview:2},
+5:{direct:2},
+6:{human:2,stat:2},
+0:{policy:2,overview:2},
 },
-// Phase 3：平日 3hr（2堂），假日 6.5hr（4–5堂）
+// Phase 3（1/1–1/31）：總複習＋考古題
 phase3:{
-1:{overview:2,research:2},       // 一：概要＋研究法
-2:{policy:2,stat:2},             // 二：政策＋統計
-3:{direct:2,human:2},            // 三：直服＋人類
-4:{overview:2,stat:2},           // 四：概要＋統計
-5:{policy:2,mgmt:2},             // 五：政策＋管理
-6:{direct:3,research:2,mgmt:2},  // 六：直服＋研究法＋管理
-0:{overview:3,policy:2,human:2}, // 日：概要＋政策＋人類
+1:{mgmt:2},
+2:{research:2},
+3:{policy:2},
+4:{overview:2},
+5:{direct:2},
+6:{human:2,stat:2},
+0:{policy:2,overview:2},
 },
 };
 
 const DAILY_SCHEDULE={
-fullday:{
-1:[{subj:'policy',type:'影片＋課本',rows:['社福政策 2 堂']},{subj:'overview',type:'影片＋課本',rows:['概要 2 堂']},{subj:'stat',type:'影片＋課本',rows:['統計學 1 堂']}],
-2:[{subj:'policy',type:'影片＋課本',rows:['社福政策 2 堂']},{subj:'overview',type:'影片＋課本',rows:['概要 2 堂']},{subj:'direct',type:'影片＋課本',rows:['直接服務 1 堂']}],
-3:[{subj:'policy',type:'影片＋課本',rows:['社福政策 2 堂']},{subj:'overview',type:'影片＋課本',rows:['概要 2 堂']},{subj:'research',type:'影片＋課本',rows:['研究法 1 堂']}],
-4:[{subj:'policy',type:'影片＋課本',rows:['社福政策 2 堂']},{subj:'overview',type:'影片＋課本',rows:['概要 2 堂']},{subj:'human',type:'影片＋課本',rows:['人類行為 1 堂']}],
-5:[{subj:'policy',type:'影片＋課本',rows:['社福政策 2 堂']},{subj:'overview',type:'影片＋課本',rows:['概要 2 堂']},{subj:'mgmt',type:'影片＋課本',rows:['管理 1 堂']}],
-6:[{subj:'policy',type:'影片＋課本',rows:['社福政策 2 堂']},{subj:'overview',type:'影片＋課本',rows:['概要 2 堂']},{subj:'stat',type:'影片＋課本',rows:['統計學 1 堂']},{subj:'direct',type:'影片＋課本',rows:['直接服務 1 堂']}],
-0:[{subj:'policy',type:'影片＋課本',rows:['社福政策 2 堂']},{subj:'overview',type:'影片＋課本',rows:['概要 2 堂']},{subj:'research',type:'影片＋課本',rows:['研究法 1 堂']},{subj:'human',type:'影片＋課本',rows:['人類行為 1 堂']}],
+prep:{
+1:[],2:[],3:[],4:[],5:[],6:[],0:[],
 },
 phase1:{
-1:[{subj:'overview',type:'影片＋課本',rows:['概要 2 堂']},{subj:'research',type:'影片＋課本',rows:['研究法 2 堂']}],
-2:[{subj:'policy',type:'影片＋課本',rows:['社福政策 2 堂']},{subj:'stat',type:'影片＋課本',rows:['統計學 2 堂']}],
-3:[{subj:'direct',type:'影片＋課本',rows:['直接服務 2 堂']},{subj:'human',type:'影片＋課本',rows:['人類行為 2 堂']}],
-4:[{subj:'overview',type:'影片＋課本',rows:['概要 2 堂']},{subj:'research',type:'影片＋課本',rows:['研究法 2 堂']}],
-5:[{subj:'policy',type:'影片＋課本',rows:['社福政策 2 堂']},{subj:'mgmt',type:'影片＋課本',rows:['管理 2 堂']}],
-6:[{subj:'direct',type:'影片＋課本',rows:['直接服務 2 堂']},{subj:'stat',type:'影片＋課本',rows:['統計學 2 堂']},{subj:'human',type:'影片＋課本',rows:['人類行為 2 堂']}],
-0:[{subj:'overview',type:'影片＋課本',rows:['概要 3 堂']},{subj:'policy',type:'影片＋課本',rows:['社福政策 2 堂']},{subj:'mgmt',type:'影片＋課本',rows:['管理 2 堂']}],
+1:[{subj:'mgmt',type:'影片＋課本',rows:['管理 2 堂（2 節）']}],
+2:[{subj:'research',type:'影片＋課本',rows:['研究法 1 節（通常 2 堂，第 6–8 節為 3 堂）']}],
+3:[{subj:'policy',type:'影片＋課本',rows:['社福政策 1 節（通常 2 堂，第 16、18 節為 3 堂）']}],
+4:[{subj:'overview',type:'影片＋課本',rows:['概要 1 節（2 堂）']}],
+5:[{subj:'direct',type:'影片＋課本',rows:['直接服務 1 節（2 堂）']}],
+6:[{subj:'human',type:'影片＋課本',rows:['人類行為 1 節（2 堂）']},{subj:'stat',type:'影片＋課本',rows:['統計學 1 節（通常 2 堂，第 4–5 節為 3 堂）']}],
+0:[{subj:'policy',type:'影片＋課本',rows:['社福政策 1 節']},{subj:'overview',type:'影片＋課本',rows:['概要 1 節']}],
 },
 phase2:{
-1:[{subj:'overview',type:'第二輪複習',rows:['概要 2 堂']},{subj:'research',type:'第二輪＋考古題',rows:['研究法 2 堂']}],
-2:[{subj:'policy',type:'第二輪複習',rows:['社福政策 2 堂']},{subj:'stat',type:'第二輪練習',rows:['統計學 2 堂']}],
-3:[{subj:'direct',type:'第二輪＋考古題',rows:['直接服務 2 堂']},{subj:'mgmt',type:'第二輪複習',rows:['管理 2 堂']}],
-4:[{subj:'overview',type:'第二輪複習',rows:['概要 2 堂']},{subj:'research',type:'第二輪＋考古題',rows:['研究法 2 堂']}],
-5:[{subj:'policy',type:'第二輪複習',rows:['社福政策 2 堂']},{subj:'direct',type:'第二輪＋考古題',rows:['直接服務 2 堂']}],
-6:[{subj:'overview',type:'第二輪複習',rows:['概要 3 堂']},{subj:'stat',type:'第二輪練習',rows:['統計學 2 堂']},{subj:'direct',type:'第二輪＋考古題',rows:['直接服務 2 堂']}],
-0:[{subj:'policy',type:'第二輪複習',rows:['社福政策 3 堂']},{subj:'research',type:'第二輪＋考古題',rows:['研究法 2 堂']},{subj:'mgmt',type:'第二輪複習',rows:['管理 2 堂']}],
+1:[{subj:'mgmt',type:'第二輪複習',rows:['管理 2 堂（2 節）']}],
+2:[{subj:'research',type:'第二輪＋考古題',rows:['研究法 1 節']}],
+3:[{subj:'policy',type:'第二輪複習',rows:['社福政策 1 節']}],
+4:[{subj:'overview',type:'第二輪複習',rows:['概要 1 節']}],
+5:[{subj:'direct',type:'第二輪＋考古題',rows:['直接服務 1 節']}],
+6:[{subj:'human',type:'第二輪複習',rows:['人類行為 1 節']},{subj:'stat',type:'第二輪練習',rows:['統計學 1 節']}],
+0:[{subj:'policy',type:'第二輪複習',rows:['社福政策 1 節']},{subj:'overview',type:'第二輪複習',rows:['概要 1 節']}],
 },
 phase3:{
-1:[{subj:'overview',type:'總複習＋考古題',rows:['概要 2 堂']},{subj:'research',type:'總複習＋考古題',rows:['研究法 2 堂']}],
-2:[{subj:'policy',type:'總複習＋考古題',rows:['社福政策 2 堂']},{subj:'stat',type:'考古題＋弱點',rows:['統計學 2 堂']}],
-3:[{subj:'direct',type:'總複習＋考古題',rows:['直接服務 2 堂']},{subj:'human',type:'總複習',rows:['人類行為 2 堂']}],
-4:[{subj:'overview',type:'總複習＋考古題',rows:['概要 2 堂']},{subj:'stat',type:'考古題＋弱點',rows:['統計學 2 堂']}],
-5:[{subj:'policy',type:'總複習＋考古題',rows:['社福政策 2 堂']},{subj:'mgmt',type:'重點整理＋考古題',rows:['管理 2 堂']}],
-6:[{subj:'direct',type:'總複習＋考古題',rows:['直接服務 3 堂']},{subj:'research',type:'總複習＋考古題',rows:['研究法 2 堂']},{subj:'mgmt',type:'重點整理＋考古題',rows:['管理 2 堂']}],
-0:[{subj:'overview',type:'總複習＋考古題',rows:['概要 3 堂']},{subj:'policy',type:'總複習＋考古題',rows:['社福政策 2 堂']},{subj:'human',type:'總複習',rows:['人類行為 2 堂']}],
+1:[{subj:'mgmt',type:'總複習＋考古題',rows:['管理 2 堂（2 節）']}],
+2:[{subj:'research',type:'總複習＋考古題',rows:['研究法 1 節']}],
+3:[{subj:'policy',type:'總複習＋考古題',rows:['社福政策 1 節']}],
+4:[{subj:'overview',type:'總複習＋考古題',rows:['概要 1 節']}],
+5:[{subj:'direct',type:'總複習＋考古題',rows:['直接服務 1 節']}],
+6:[{subj:'human',type:'總複習',rows:['人類行為 1 節']},{subj:'stat',type:'考古題＋弱點',rows:['統計學 1 節']}],
+0:[{subj:'policy',type:'總複習＋考古題',rows:['社福政策 1 節']},{subj:'overview',type:'總複習＋考古題',rows:['概要 1 節']}],
 },
 };
 
 const PHASE_DATA=[
-{num:'PHASE 01',name:'建立基礎',date:'2026 年 8/8 — 9/30（約 8 週）',badge:'第一階段',badgeColor:'#dcfce7',badgeText:'#14532d',
-items:['七科全部從頭，影片＋課本並行','平日 3hr 每天 2 科，假日 6.5hr 每天 3 科','每週約 28 小時，共 10 節課','目標：9/30 前完成直接服務、研究法、統計、管理全部堂數','概要約完成 16/19 節，社福政策約 16/20 節，人類行為約 8/9 節']},
-{num:'PHASE 02',name:'第二輪加深',date:'2026 年 10/1 — 11/30（約 9 週）',badge:'第二階段',badgeColor:'#dbeafe',badgeText:'#1e40af',
-items:['概要完成剩餘 3 節，社福政策完成剩餘 4 節','各科進入第二輪複習，搭配考古題分析','人類行為穿插於直接服務、概要中連結複習','整理四校高頻考點筆記','各科一頁架構筆記整理完成']},
-{num:'PHASE 03',name:'總複習衝刺',date:'2026 年 12/1 — 2027 年 1/31（約 9 週）',badge:'第三階段',badgeColor:'#fee2e2',badgeText:'#991b1b',
-items:['搭配各科總複習課程（共 10 節）','每週模擬考，按各校題型計時作答','1 月刷各校近 3 年試題，集中補強盲點','每天睡前 15 分鐘快速翻閱筆記','考前最後兩週（1/17–1/31）：弱點衝刺＋模擬考']},
+{num:'PHASE 01',name:'建立基礎',date:'2026 年 9/8 — 10/31（約 8 週）',badge:'第一階段',badgeColor:'#dcfce7',badgeText:'#14532d',
+items:['七科全部從頭，影片＋課本並行','平日每天 1 科，週六 2 科，週日 2 科','每節課盡量當天完整看完，不跨天切斷','週二、三偶有回診與諮商，當天任務可彈性調整','目標：10/31 前完成各科第一輪']},
+{num:'PHASE 02',name:'第二輪加深',date:'2026 年 11/1 — 12/31（約 9 週）',badge:'第二階段',badgeColor:'#dbeafe',badgeText:'#1e40af',
+items:['各科進入第二輪複習，搭配考古題分析','整理四校高頻考點筆記','各科一頁架構筆記整理完成','人類行為穿插於直接服務、概要中連結複習']},
+{num:'PHASE 03',name:'總複習衝刺',date:'2027 年 1/1 — 1/31（約 4 週）',badge:'第三階段',badgeColor:'#fee2e2',badgeText:'#991b1b',
+items:['搭配各科總複習課程（共 10 節）','按各校題型計時作答，每週模擬考','各校近 3 年試題集中補強','弱點科目集中火力','考前輕量複習，保持狀態，勿熬夜']},
 ];
 
 const MONTHLY_PLAN={
-'2026-7':{phase:'過渡期',phaseColor:'#f0fdf4',phaseText:'#166534',note:'課本到手，暖身讀書，8/8 正式開始 Phase 1',
-rows:[{subj:'policy',target:'社福政策 前幾節先熟悉',status:'ongoing',statusText:'自由進行'},{subj:'overview',target:'概要 前幾節先熟悉',status:'ongoing',statusText:'自由進行'}]},
-'2026-8':{phase:'Phase 1',phaseColor:'#dcfce7',phaseText:'#14532d',note:'8/1–8/7 緩衝週，8/8 正式開始。平日 3hr，假日 6.5hr',
-rows:[{subj:'overview',target:'概要 約第 1–8 節（16 堂）',status:'ongoing',statusText:'進行中 →'},{subj:'policy',target:'社福政策 約第 1–8 節（17 堂）',status:'ongoing',statusText:'進行中 →'},{subj:'direct',target:'直接服務 約第 1–4 節（8 堂）',status:'ongoing',statusText:'進行中 →'},{subj:'research',target:'研究法 約第 1–4 節（8 堂）',status:'ongoing',statusText:'進行中 →'},{subj:'stat',target:'統計學 約第 1–3 節（6 堂）',status:'ongoing',statusText:'進行中 →'},{subj:'mgmt',target:'管理 約第 1–5 節（5 堂）',status:'ongoing',statusText:'進行中 →'},{subj:'human',target:'人類行為 約第 1–4 節（6 堂）',status:'ongoing',statusText:'進行中 →'}]},
-'2026-9':{phase:'Phase 1',phaseColor:'#dcfce7',phaseText:'#14532d',note:'目標：9/30 前直接服務、研究法、統計、管理全部完課',
-rows:[{subj:'direct',target:'直接服務 全部 10 節（20 堂）✅',status:'done',statusText:'目標完課'},{subj:'research',target:'研究法 全部 8 節（19 堂）✅',status:'done',statusText:'目標完課'},{subj:'stat',target:'統計學 全部 5 節（12 堂）✅',status:'done',statusText:'目標完課'},{subj:'mgmt',target:'管理 全部 13 節（13 堂）✅',status:'done',statusText:'目標完課'},{subj:'overview',target:'概要 約 16/19 節',status:'ongoing',statusText:'進行中 →'},{subj:'policy',target:'社福政策 約 16/20 節',status:'ongoing',statusText:'進行中 →'},{subj:'human',target:'人類行為 約 8/9 節',status:'ongoing',statusText:'進行中 →'}]},
-'2026-10':{phase:'Phase 2',phaseColor:'#dbeafe',phaseText:'#1e40af',note:'概要、社福政策、人類行為完課；各科進入第二輪＋考古題',
-rows:[{subj:'overview',target:'概要 完成剩餘 3 節',status:'done',statusText:'目標完課'},{subj:'policy',target:'社福政策 完成剩餘 4 節',status:'done',statusText:'目標完課'},{subj:'human',target:'人類行為 完成剩餘約 1 節',status:'done',statusText:'目標完課'},{subj:null,target:'各科第二輪複習＋考古題',status:'special',statusText:'每週推進'}]},
-'2026-11':{phase:'Phase 2',phaseColor:'#dbeafe',phaseText:'#1e40af',note:'弱點補強，整理全科架構筆記',
-rows:[{subj:null,target:'各科第二輪加深＋考古題',status:'special',statusText:'每週推進'},{subj:null,target:'四校高頻考點筆記整理',status:'special',statusText:'本月完成'},{subj:null,target:'各科一頁架構筆記',status:'special',statusText:'本月完成'}]},
-'2026-12':{phase:'Phase 3',phaseColor:'#fee2e2',phaseText:'#991b1b',note:'總複習課程＋考古題衝刺，每週模擬考',
-rows:[{subj:null,target:'搭配總複習課程（共 10 節）',status:'special',statusText:'逐週完成'},{subj:null,target:'各校考古題模擬考',status:'special',statusText:'每週 1 份'},{subj:null,target:'每天睡前複習筆記',status:'special',statusText:'15 分鐘'}]},
-'2027-1':{phase:'Phase 3',phaseColor:'#fee2e2',phaseText:'#991b1b',note:'各校近 3 年試題，集中補強盲點；1/17 起考前最後衝刺',
-rows:[{subj:null,target:'各校近 3 年試題',status:'special',statusText:'共 12 份'},{subj:null,target:'弱點科目集中火力',status:'special',statusText:'依 Phase 3 結果'},{subj:null,target:'考古題計時模擬作答',status:'special',statusText:'1/17 後每天'}]},
+'2026-9':{phase:'準備期 → Phase 1',phaseColor:'#dcfce7',phaseText:'#14532d',note:'9/4–9/7 自由讀書，9/8 正式開始 Phase 1',
+rows:[{subj:'mgmt',target:'管理 全部 13 堂（週一每次 2 堂）',status:'ongoing',statusText:'進行中 →'},{subj:'research',target:'研究法 前幾節',status:'ongoing',statusText:'進行中 →'},{subj:'policy',target:'社福政策 前幾節',status:'ongoing',statusText:'進行中 →'},{subj:'overview',target:'概要 前幾節',status:'ongoing',statusText:'進行中 →'},{subj:'direct',target:'直接服務 前幾節',status:'ongoing',statusText:'進行中 →'},{subj:'human',target:'人類行為 前幾節',status:'ongoing',statusText:'進行中 →'},{subj:'stat',target:'統計學 前幾節',status:'ongoing',statusText:'進行中 →'}]},
+'2026-10':{phase:'Phase 1',phaseColor:'#dcfce7',phaseText:'#14532d',note:'目標：10/31 前完成各科第一輪',
+rows:[{subj:'mgmt',target:'管理 全部 13 堂 ✅',status:'done',statusText:'目標完課'},{subj:'research',target:'研究法 全部 8 節（19 堂）✅',status:'done',statusText:'目標完課'},{subj:'policy',target:'社福政策 全部 20 節（42 堂）',status:'ongoing',statusText:'進行中 →'},{subj:'overview',target:'概要 全部 19 節（38 堂）',status:'ongoing',statusText:'進行中 →'},{subj:'direct',target:'直接服務 全部 10 節（20 堂）✅',status:'done',statusText:'目標完課'},{subj:'human',target:'人類行為 全部 9 節（16 堂）✅',status:'done',statusText:'目標完課'},{subj:'stat',target:'統計學 全部 5 節（12 堂）✅',status:'done',statusText:'目標完課'}]},
+'2026-11':{phase:'Phase 2',phaseColor:'#dbeafe',phaseText:'#1e40af',note:'各科第二輪複習，搭配考古題分析',
+rows:[{subj:'policy',target:'社福政策 第二輪複習',status:'ongoing',statusText:'進行中 →'},{subj:'overview',target:'概要 第二輪複習',status:'ongoing',statusText:'進行中 →'},{subj:null,target:'四校高頻考點筆記整理',status:'special',statusText:'本月推進'},{subj:null,target:'各科一頁架構筆記',status:'special',statusText:'本月完成'}]},
+'2026-12':{phase:'Phase 2',phaseColor:'#dbeafe',phaseText:'#1e40af',note:'第二輪加深，整理完成所有筆記',
+rows:[{subj:null,target:'各科第二輪考古題',status:'special',statusText:'每週推進'},{subj:null,target:'架構筆記完成',status:'special',statusText:'月底完成'}]},
+'2027-1':{phase:'Phase 3',phaseColor:'#fee2e2',phaseText:'#991b1b',note:'總複習衝刺，每週模擬考，集中補強盲點',
+rows:[{subj:null,target:'各科總複習課程（共 10 節）',status:'special',statusText:'逐週完成'},{subj:null,target:'各校近 3 年試題',status:'special',statusText:'計時作答'},{subj:null,target:'弱點科目集中火力',status:'special',statusText:'依狀況調整'}]},
 '2027-2':{phase:'考前',phaseColor:'#f3e8ff',phaseText:'#6b21a8',note:'輕量複習，保持狀態，勿熬夜',
 rows:[{subj:null,target:'重點筆記瀏覽',status:'special',statusText:'每天 1 小時即可'}]},
 };
@@ -810,10 +799,10 @@ return `<button class="day-tab${activeDayTab===dow?' active':''}${isToday?' toda
 const phase=getCurrentPhase();
 const daySchedule=DAILY_SCHEDULE[phase][activeDayTab]||[];
 const phaseLabels={
-fullday:'過渡期（7月）：課本到手，自由讀書中',
-phase1:'Phase 1（8/8–9/30）：第一輪，平日 3hr，假日 6.5hr',
-phase2:'Phase 2（10/1–11/30）：第二輪加深＋考古題',
-phase3:'Phase 3（12/1–1/31）：總複習衝刺',
+prep:'準備期（9/4–9/7）：自由讀書，9/8 正式開始',
+phase1:'Phase 1（9/8–10/31）：第一輪，平日 1 科，週六 2 科，週日 2 科',
+phase2:'Phase 2（11/1–12/31）：第二輪加深＋考古題',
+phase3:'Phase 3（1/1–1/31）：總複習衝刺',
 };
 const phaseLabel=phaseLabels[phase]||phase;
 const oldToggle=document.getElementById('phase-toggle');
